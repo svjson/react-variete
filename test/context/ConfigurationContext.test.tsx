@@ -4,7 +4,33 @@ import { renderHook } from '@testing-library/react'
 import createConfig, { setting } from '@/index'
 
 describe('ConfigurationContext', () => {
-  it('should derive config shape from definition tree', () => {
+  describe('useConfig', () => {
+    it('should provide the full configuration', () => {
+      const { useConfig, Provider } = createConfig({
+        global: {
+          testSetting: setting({
+            name: 'Hints',
+            default: 'on',
+            description: 'Show hints',
+          }),
+        },
+      })
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <Provider>{children}</Provider>
+      )
+
+      const { result } = renderHook(() => useConfig(), { wrapper })
+
+      expect(result.current).toEqual({
+        global: {
+          testSetting: 'on',
+        },
+      })
+    })
+  })
+
+  it('should resolve a single config value by path', () => {
     const { useConfig, Provider } = createConfig({
       global: {
         testSetting: setting({
@@ -19,12 +45,10 @@ describe('ConfigurationContext', () => {
       <Provider>{children}</Provider>
     )
 
-    const { result } = renderHook(() => useConfig(), { wrapper })
-
-    expect(result.current).toEqual({
-      global: {
-        testSetting: 'on',
-      },
+    const { result } = renderHook(() => useConfig('global.testSetting'), {
+      wrapper,
     })
+
+    expect(result.current).toEqual('on')
   })
 })

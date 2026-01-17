@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react'
 import { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model/model'
 import { materialize } from '@/materialize'
+import { readPath } from '@whimbrel/walk'
 
 /**
  * Create a configuration context
@@ -44,13 +45,21 @@ export function createConfig<
   /**
    * The useConfig-hook that application components can make use of to
    * access configuration settings.
+   *
+   * @param path - Optional dot-separated path to a specific configuration
+   *               setting.
    */
-  function useConfig(): ResolvedConfig {
+  function useConfig(path?: string): ResolvedConfig {
     const ctx = useContext(ConfigContext)
     if (ctx === undefined) {
       throw new Error('useConfig must be used within a ConfigProvider')
     }
-    return ctx
+
+    if (!path) {
+      return ctx
+    }
+
+    return readPath(ctx, path)
   }
 
   return {
