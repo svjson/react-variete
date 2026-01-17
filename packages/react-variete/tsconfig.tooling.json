@@ -10,7 +10,9 @@
     "verbatimModuleSyntax": true,
 
     "jsx": "react-jsx",
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node"],
+
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tooling.tsbuildinfo"
   },
   "include": [
     "src",

@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  packages/react-variete:
     dependencies:
       '@whimbrel/walk':
         specifier: ^0.1.0

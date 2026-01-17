@@ -1,0 +1,42 @@
+{
+  "name": "react-variete",
+  "version": "0.1.0",
+  "author": "Sven Johansson",
+  "license": "ISC",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build:config": "tsc -p tsconfig.build.json --showConfig",
+    "lint": "eslint .",
+    "prettier": "prettier --check src/",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.1",
+    "@types/node": "^25.0.9",
+    "@types/react": "^19.2.8",
+    "jsdom": "^27.4.0",
+    "react": "^19.2.3",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
+  },
+  "dependencies": {
+    "@whimbrel/walk": "^0.1.0"
+  }
+}

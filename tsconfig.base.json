@@ -10,13 +10,6 @@
     "target": "ES2022",
     "module": "ESNext",
 
-    "jsx": "react-jsx",
-
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+    "jsx": "react-jsx"
   }
 }

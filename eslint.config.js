@@ -4,13 +4,13 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import tsParser from '@typescript-eslint/parser'
-import { globalIgnores } from 'eslint/config'
 
 export default [
-  globalIgnores(['dist', 'node_modules']),
-
   {
-    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['**/dist/**', '**/node_modules/**'],
+  },
+  {
+    files: ['**/{src,test}/**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
