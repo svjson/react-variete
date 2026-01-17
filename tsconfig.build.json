@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+
+    "moduleResolution": "bundler",
+
+    "stripInternal": true,
+    "verbatimModuleSyntax": true,
+
+    "noEmitOnError": true,
+
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.build.tsbuildinfo"
+  },
+  "include": ["src"]
+}

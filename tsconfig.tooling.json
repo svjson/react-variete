@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": true,
+
+    "lib": ["ES2022", "DOM"],
+
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+
+    "jsx": "react-jsx",
+    "types": ["vitest/globals", "node"]
+  },
+  "include": [
+    "src",
+    "test",
+    "types-test"
+  ]
+}
