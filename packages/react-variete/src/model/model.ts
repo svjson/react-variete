@@ -102,6 +102,38 @@ type HasRequiredWithoutDefault<T> =
       : false
 
 /**
+ * Type-utility that rounds up all required keys of a ConfigTree branch,
+ * checking with full depth if any descendant leaf contains required settings
+ * that do not provide default values.
+ *
+ * @param T - The configuration schema tree
+ */
+type RequiredKeys<T extends ConfigTree> = {
+  [K in keyof T]: T[K] extends SettingDefinition<any>
+    ? IsRequiredSetting<T[K]> extends true
+      ? K
+      : never
+    : HasRequiredWithoutDefault<T[K]> extends true
+      ? K
+      : never
+}[keyof T]
+
+/**
+ * The inverse of `RequiredKeys` - rounds up all keys that may be safely
+ * omitted from a ConfigTree.
+ *
+ * @param T - The configuration schema tree
+ */
+type OptionalKeys<T extends ConfigTree> = Exclude<keyof T, RequiredKeys<T>>
+
+type LiteralValue<V> =
+  V extends SettingDefinition<infer S>
+    ? S
+    : V extends ConfigTree
+      ? ConfigLiteral<V>
+      : never
+
+/**
  * Derives the literal configuration shape from a configuration schema tree.
  *
  * This is the type of acceptable config inputs from which a concrete
@@ -116,21 +148,12 @@ export type ConfigLiteral<T> =
     ? never // settings don't appear directly at root
     : T extends ConfigTree
       ? {
-          [K in keyof T as T[K] extends SettingDefinition<any>
-            ? IsRequiredSetting<T[K]> extends true
-              ? K
-              : never
-            : K]: T[K] extends SettingDefinition<infer V>
-            ? V
-            : ConfigLiteral<T[K]>
+          [K in RequiredKeys<T>]: LiteralValue<T[K]>
         } & {
-          [K in keyof T as T[K] extends SettingDefinition<any>
-            ? IsRequiredSetting<T[K]> extends true
-              ? never
-              : K
-            : never]?: T[K] extends SettingDefinition<infer V> ? V : never
+          [K in OptionalKeys<T>]?: LiteralValue<T[K]>
         }
       : never
+
 /**
  * Defines the concrete configuration type derived from a configuration schema
  * tree.

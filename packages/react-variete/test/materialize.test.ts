@@ -171,6 +171,32 @@ describe('materialize', () => {
 
   it.each([
     {
+      desc: 'nested settings',
+      from: 'empty object',
+      schema: SCHEMA__NESTED_TREE__WITH_DEFAULTS,
+      input: {},
+      expected: {
+        global: {
+          testSetting: 'yes',
+          darkMode: false,
+        },
+        contexts: {
+          mediaPlayer: {
+            autoPlay: true,
+            subtitles: 'English',
+          },
+        },
+      },
+    },
+  ])(
+    'should materialize config with $desc from $from',
+    ({ schema, input, expected }) => {
+      expect(materialize(schema, input)).toEqual(expected)
+    }
+  )
+
+  it.each([
+    {
       desc: 'top level setting',
       schema: SCHEMA__SINGLE_TOP_LEVEL__NO_DEFAULT,
       input: {
