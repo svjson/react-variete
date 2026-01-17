@@ -9,5 +9,6 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    exclude: ['types-test/**', 'dist/**', '**/node_modules/**'],
   },
 })
