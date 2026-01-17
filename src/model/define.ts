@@ -1,4 +1,5 @@
-import { SETTING_DEFINITION, SettingDefinition } from './model'
+import { SETTING_DEFINITION } from './model'
+import type { SettingDefinition } from './model'
 
 /**
  * Define a setting

@@ -160,6 +160,10 @@ describe('materialize', () => {
     'should throw error for config with $desc with $inputDesc input when there is no value for required setting',
     ({ schema, input }) => {
       expect(() => {
+        // This is intentionally invalid, and here we are verifying that an error is thrown
+        // when the type-system cannot reject it at compile-time, ie in case of JS or dodgy
+        // TS usage.
+        // @ts-expect-error
         materialize(schema, input)
       }).toThrowError()
     }

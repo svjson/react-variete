@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useMemo } from 'react'
-import { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model/model'
+import type { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model/model'
 import { materialize } from '@/materialize'
-import { readPath } from '@whimbrel/walk'
+import type { ConfigPath, ConfigPathValue } from '@/resolve'
+import { resolveConfigPath } from '@/resolve'
 
 /**
  * Create a configuration context
@@ -35,7 +36,13 @@ export function createConfig<
     config?: ConfigValues
     children: React.ReactNode
   }) {
-    const value = useMemo(() => materialize(schema, config), [config])
+    const value = useMemo(
+      () =>
+        config === undefined
+          ? materialize(schema)
+          : materialize(schema, config),
+      [config]
+    )
 
     return (
       <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
@@ -43,13 +50,28 @@ export function createConfig<
   }
 
   /**
-   * The useConfig-hook that application components can make use of to
-   * access configuration settings.
+   * Hook that application components can make use of to access the effective
+   * configuration.
    *
-   * @param path - Optional dot-separated path to a specific configuration
-   *               setting.
+   * @returns The full configuration object
    */
-  function useConfig(path?: string): ResolvedConfig {
+  function useConfig(): ResolvedConfig
+  /**
+   * Hook that application components can make use of to access a specific
+   * configuration value or sub-level of the effective confguration.
+   *
+   * @param path - The configuration path to access
+   *
+   * @returns The configuration value or configuration-sublevel at the
+   *          specified path
+   */
+  function useConfig<P extends ConfigPath<ResolvedConfig>>(
+    path: P
+  ): ConfigPathValue<ResolvedConfig, P>
+  /**
+   * Implementation of the useConfig hook overloads.
+   */
+  function useConfig(path?: ConfigPath<ResolvedConfig>) {
     const ctx = useContext(ConfigContext)
     if (ctx === undefined) {
       throw new Error('useConfig must be used within a ConfigProvider')
@@ -59,7 +81,7 @@ export function createConfig<
       return ctx
     }
 
-    return readPath(ctx, path)
+    return resolveConfigPath(ctx, path)
   }
 
   return {

@@ -1,11 +1,12 @@
-import {
+import type {
   ConcreteConfig,
   ConfigLiteral,
   ConfigNode,
   ConfigTree,
-  isSettingNode,
+  IsInputOptional,
   SettingDefinition,
 } from './model/model'
+import { isSettingNode } from './model/model'
 import { keysOf } from './utility'
 
 /**
@@ -90,15 +91,21 @@ const resolveTree = <
  *
  * @throws Error if a required setting is missing and has no default value
  */
-export const materialize = <
+export function materialize<T extends ConfigTree>(
+  schema: T,
+  input: ConfigLiteral<T>
+): ConcreteConfig<T>
+
+export function materialize<T extends ConfigTree>(
+  schema: T
+): IsInputOptional<T> extends true ? ConcreteConfig<T> : never
+
+export function materialize<
   ConfigSchema extends ConfigTree,
   ConfigValues extends ConfigLiteral<ConfigSchema> =
     ConfigLiteral<ConfigSchema>,
   ResolvedConfig extends ConcreteConfig<ConfigSchema> =
     ConcreteConfig<ConfigSchema>,
->(
-  schema: ConfigSchema,
-  input?: ConfigValues
-): ResolvedConfig => {
+>(schema: ConfigSchema, input?: ConfigValues): ResolvedConfig {
   return resolveTree([], schema, input)
 }
