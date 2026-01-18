@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useMemo } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import type { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model'
 import { materialize } from '@/materialize'
 import type { ConfigPath, ConfigPathValue } from '@/resolve'
 import { resolveConfigPath } from '@/resolve'
+import { writePath } from '@whimbrel/walk'
 
 /**
  * Create a configuration context
@@ -21,8 +22,17 @@ export function createConfig<
     ConfigLiteral<ConfigSchema>,
 >(schema: ConfigSchema) {
   type ResolvedConfig = ConcreteConfig<ConfigSchema>
+  type MutateSetting = <P extends ConfigPath<ResolvedConfig>>(
+    path: P,
+    value: ConfigPathValue<ResolvedConfig, P>
+  ) => void
 
-  const ConfigContext = createContext<ResolvedConfig | undefined>(undefined)
+  type ContextState = {
+    config: ResolvedConfig
+    mutateSetting: MutateSetting
+  }
+
+  const ConfigContext = createContext<ContextState | undefined>(undefined)
 
   /**
    * Defines and provides a ConfigContext React element, which must wrap
@@ -36,16 +46,25 @@ export function createConfig<
     config?: ConfigValues
     children: React.ReactNode
   }) {
-    const value = useMemo(
-      () =>
-        config === undefined
-          ? materialize(schema)
-          : materialize(schema, config),
-      [config]
+    const [currentConfig, setCurrentConfig] = useState(() =>
+      config === undefined ? materialize(schema) : materialize(schema, config)
     )
 
+    const mutateSetting: MutateSetting = (path, value) => {
+      const clone = structuredClone(currentConfig)
+      writePath(clone, path, value)
+      setCurrentConfig(clone)
+    }
+
     return (
-      <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
+      <ConfigContext.Provider
+        value={{
+          config: currentConfig,
+          mutateSetting: mutateSetting,
+        }}
+      >
+        {children}
+      </ConfigContext.Provider>
     )
   }
 
@@ -77,15 +96,31 @@ export function createConfig<
       throw new Error('useConfig must be used within a ConfigProvider')
     }
 
+    const { config } = ctx
+
     if (!path) {
-      return ctx
+      return config
     }
 
-    return resolveConfigPath(ctx, path)
+    return resolveConfigPath(config, path)
+  }
+
+  /**
+   * Hook that provides a function to mutate a path within the the current
+   * configuration.
+   */
+  function useConfigMutation(): MutateSetting {
+    const ctx = useContext(ConfigContext)
+    if (ctx === undefined) {
+      throw new Error('useConfigMutation must be used within a ConfigProvider')
+    }
+
+    return ctx.mutateSetting
   }
 
   return {
     Provider,
+    useConfigMutation,
     useConfig,
   }
 }
