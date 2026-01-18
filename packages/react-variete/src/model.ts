@@ -1,4 +1,5 @@
 export const SETTING_DEFINITION: unique symbol = Symbol('SettingDefinition')
+export const SETTING_VALUE: unique symbol = Symbol('SettingValue')
 
 export type SettingValueType = 'string' | 'boolean' | 'number' | 'enum'
 
@@ -9,21 +10,26 @@ export type SettingValueType = 'string' | 'boolean' | 'number' | 'enum'
 export type ConfigNode = SettingDefinition<any> | ConfigTree
 
 /**
+ * Mixin-type for Setting types, which is required for inferring value types
+ * from setting definition types that do not otherwise expose a template type.
+ *
+ * @param V - The type of the setting's value
+ */
+type ValueBrand<V> = {
+  readonly [SETTING_VALUE]?: V
+}
+
+/**
  * Defines a configuration setting with optional metadata such as whether it is
  * required, its default value, description, and additional metadata.
  *
  * @param T - The type of the setting's value
  */
-export type SettingDefinition<T> = {
+export type SettingDefinitionBase = {
   /**
    * Discriminating branding
    */
   readonly [SETTING_DEFINITION]: true
-
-  /**
-   * The data-type of this setting
-   */
-  type: SettingValueType
 
   /**
    * The name of the configuration setting
@@ -38,11 +44,6 @@ export type SettingDefinition<T> = {
   required?: boolean
 
   /**
-   * The default value for the setting, if any
-   */
-  default?: T
-
-  /**
    * A brief description of the setting
    */
   description?: string
@@ -52,6 +53,66 @@ export type SettingDefinition<T> = {
    */
   meta?: Record<string, unknown>
 }
+
+/**
+ * Defines the base properties of a primitive configuration setting.
+ *
+ * Actual instances may define additional properties unique to their
+ * kind, so this type should never be used to directly define or
+ * inspect settings.
+ *
+ * @param T - The type of the setting's value
+ */
+type PrimitiveSetting<
+  T,
+  TP extends SettingValueType,
+> = SettingDefinitionBase & {
+  /**
+   * Type discriminator
+   */
+  type: TP
+  /**
+   * The default value for the setting, if any
+   */
+  default?: T
+}
+
+/**
+ * Fully formed type for string setting values
+ */
+export type StringSetting = PrimitiveSetting<string, 'string'>
+
+/**
+ * Fully formed type for number setting values
+ */
+export type NumberSetting = PrimitiveSetting<number, 'number'>
+
+/**
+ * Fully formed type for boolean setting values
+ */
+export type BooleanSetting = PrimitiveSetting<boolean, 'boolean'>
+
+/**
+ * Fully formed type for enum setting values
+ *
+ * @param E - The tuple of valid enum string values
+ */
+export type EnumSetting<E extends readonly string[]> = SettingDefinitionBase &
+  ValueBrand<E[number]> & {
+    type: 'enum'
+    default?: E[number]
+    values: E
+  }
+
+/**
+ * Union type alias that binds together all stock settig types, and defines a
+ * configuration setting which may be of various primitive types.
+ */
+export type SettingDefinition<V = unknown> =
+  | (StringSetting & ValueBrand<V>)
+  | (NumberSetting & ValueBrand<V>)
+  | (BooleanSetting & ValueBrand<V>)
+  | (EnumSetting<readonly string[]> & ValueBrand<V>)
 
 /**
  * Defines a tree structure for configuration, where each key maps to either a
@@ -175,6 +236,19 @@ export type ConcreteConfig<T> =
     ? V
     : T extends ConfigTree
       ? { [K in keyof T]: ConcreteConfig<T[K]> }
+      : never
+
+/**
+ * Defines a sparse, partial version of a configuration schema
+ * where all settings are recursively optional.
+ */
+export type PartialConfig<T> =
+  T extends SettingDefinition<infer V>
+    ? V | undefined
+    : T extends ConfigTree
+      ? {
+          [K in keyof T]?: PartialConfig<T[K]>
+        }
       : never
 
 /**

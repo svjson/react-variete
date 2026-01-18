@@ -1,21 +1,16 @@
 import { SETTING_DEFINITION } from './model'
-import type { SettingDefinition } from './model'
+import type {
+  BooleanSetting,
+  EnumSetting,
+  NumberSetting,
+  SettingDefinitionBase,
+  StringSetting,
+} from './model'
 
-type SettingDetails<T> = Omit<SettingDefinition<T>, typeof SETTING_DEFINITION>
-
-/**
- * Convenience factory-function that defines a setting.
- *
- * @param def - The setting details
- *
- * @return A fully formed setting definition
- */
-export const setting = <T>(def: SettingDetails<T>): SettingDefinition<T> => {
-  return {
-    [SETTING_DEFINITION]: true,
-    ...def,
-  }
-}
+type SettingDetails<T extends SettingDefinitionBase> = Omit<
+  T,
+  typeof SETTING_DEFINITION
+>
 
 /**
  * Convenience factory-function that defines a string-setting.
@@ -25,8 +20,8 @@ export const setting = <T>(def: SettingDetails<T>): SettingDefinition<T> => {
  * @return A fully formed string-setting definition
  */
 export const stringSetting = (
-  def: Omit<SettingDetails<string>, 'type'>
-): SettingDefinition<string> => {
+  def: Omit<SettingDetails<StringSetting>, 'type'>
+): StringSetting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'string',
@@ -42,8 +37,8 @@ export const stringSetting = (
  * @return A fully formed boolean-setting definition
  */
 export const booleanSetting = (
-  def: Omit<SettingDetails<boolean>, 'type'>
-): SettingDefinition<boolean> => {
+  def: Omit<SettingDetails<BooleanSetting>, 'type'>
+): BooleanSetting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'boolean',
@@ -59,8 +54,8 @@ export const booleanSetting = (
  * @return A fully formed number-setting definition
  */
 export const numberSetting = (
-  def: Omit<SettingDetails<number>, 'type'>
-): SettingDefinition<number> => {
+  def: Omit<SettingDetails<NumberSetting>, 'type'>
+): NumberSetting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'number',
@@ -76,10 +71,10 @@ export const numberSetting = (
  * @return A fully formed enum-setting definition
  */
 export const enumSetting = <T extends readonly string[]>(
-  def: Omit<SettingDetails<T[number]>, 'type'> & {
+  def: Omit<SettingDetails<EnumSetting<T>>, 'type'> & {
     values: T
   }
-): SettingDefinition<T[number]> => {
+): EnumSetting<T> => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'enum',
