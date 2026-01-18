@@ -266,6 +266,41 @@ export const isSettingNode = (
   )
 }
 
+/**
+ * Query if a ConfigNode is a ConfigTree (setting group)
+ *
+ * @param node - the configuration node to check
+ */
 export const isGroupNode = (node: ConfigNode): node is ConfigTree => {
   return !isSettingNode(node)
+}
+
+/**
+ * Query if `value` is valid as a value for `setting`.
+ *
+ * @param setting - The setting definition
+ * @param value - The value to validate
+ *
+ * @returns True if the value is valid for the setting, false otherwise
+ */
+export const isValidSettingValue = <V>(
+  setting: SettingDefinition<V>,
+  value: unknown
+): boolean => {
+  switch (setting.type) {
+    case 'string':
+      return typeof value === 'string'
+
+    case 'number':
+      return typeof value === 'number' && !Number.isNaN(value)
+
+    case 'boolean':
+      return typeof value === 'boolean'
+
+    case 'enum':
+      return setting.values.includes(value as string) ?? false
+
+    default:
+      return false
+  }
 }

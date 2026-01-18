@@ -4,6 +4,10 @@ import { materialize } from '@/materialize'
 import type { ConfigPath, ConfigPathValue } from '@/resolve'
 import { resolveConfigPath } from '@/resolve'
 import { writePath } from '@whimbrel/walk'
+import type { PersistentStore } from '@/store/persistent-store'
+import { nullStore } from '@/store/null-store'
+import { localStorageStore } from '@/store/local-storage'
+import { applyStoredConfig } from '@/merge'
 
 /**
  * Create a configuration context
@@ -41,19 +45,30 @@ export function createConfig<
    */
   function Provider({
     config,
+    store,
     children,
   }: {
     config?: ConfigValues
+    store?: PersistentStore<ConfigSchema> | 'local-storage'
     children: React.ReactNode
   }) {
     const [currentConfig, setCurrentConfig] = useState(() =>
       config === undefined ? materialize(schema) : materialize(schema, config)
     )
 
+    if (store === 'local-storage') store = localStorageStore('variete')
+    if (!store) store = nullStore()
+
     const mutateSetting: MutateSetting = (path, value) => {
       const clone = structuredClone(currentConfig)
       writePath(clone, path, value)
+      store.saveValue(path, value)
       setCurrentConfig(clone)
+    }
+
+    const storedConfig = store.load()
+    if (storedConfig) {
+      applyStoredConfig(schema, currentConfig, storedConfig)
     }
 
     return (

@@ -1,14 +1,14 @@
 import React from 'react'
 import { describe, it, expect } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import createConfig, { setting } from '@/index'
+import createConfig, { stringSetting } from '@/index'
 
 describe('ConfigurationContext', () => {
   describe('useConfig', () => {
     it('should provide the full configuration', () => {
       const { useConfig, Provider } = createConfig({
         global: {
-          testSetting: setting({
+          testSetting: stringSetting({
             name: 'Hints',
             default: 'on',
             description: 'Show hints',
@@ -33,7 +33,7 @@ describe('ConfigurationContext', () => {
   it('should resolve a single config value by path', () => {
     const { useConfig, Provider } = createConfig({
       global: {
-        testSetting: setting({
+        testSetting: stringSetting({
           name: 'Hints',
           default: 'on',
           description: 'Show hints',
