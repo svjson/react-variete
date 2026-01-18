@@ -1,10 +1,11 @@
 import { SettingsPanel } from 'react-variete'
+import type { FieldsPreset, GroupsPreset, LayoutPreset } from 'react-variete'
 import { useConfig, schema, useConfigMutation } from '@/context/config'
 
 export default function NativeComponentsView() {
   const config = useConfig()
   const { title } = useConfig('demo')
-  const { padding } = useConfig('demo.interface.layout')
+  const { layout, fields, groups } = useConfig('demo.interface.layout')
   const mutateConfig = useConfigMutation()
 
   return (
@@ -16,6 +17,9 @@ export default function NativeComponentsView() {
         header={title}
         schema={schema}
         config={config}
+        layout={layout as LayoutPreset}
+        fieldRenderer={fields as FieldsPreset}
+        groupRenderer={groups as GroupsPreset}
         onSettingChange={mutateConfig}
       />
     </div>

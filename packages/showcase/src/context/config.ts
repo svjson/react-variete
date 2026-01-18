@@ -2,7 +2,6 @@ import createConfig, {
   stringSetting,
   enumSetting,
   booleanSetting,
-  numberSetting,
 } from 'react-variete'
 
 export const schema = {
@@ -19,14 +18,20 @@ export const schema = {
         }),
       },
       layout: {
-        type: enumSetting<['wide', 'narrow', 'columns']>({
+        layout: enumSetting<['flat', 'hierarchy']>({
           name: 'Layout Type',
-          default: 'wide',
-          values: ['wide', 'narrow', 'columns'],
+          default: 'flat',
+          values: ['flat', 'hierarchy'],
         }),
-        padding: numberSetting({
-          name: 'Padding',
-          default: 4,
+        groups: enumSetting<['fieldset', 'heading']>({
+          name: 'Group Renderer',
+          default: 'fieldset',
+          values: ['fieldset', 'heading'],
+        }),
+        fields: enumSetting<['stacked', 'column']>({
+          name: 'Field Renderer',
+          default: 'stacked',
+          values: ['stacked', 'column'],
         }),
       },
     },

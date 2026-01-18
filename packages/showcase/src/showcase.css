@@ -1,7 +1,21 @@
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .rv-showcase {
   --bg: #f4f6fb;
   --panel: #ffffff;
+  --input-bg: #ffffff;
+  --disabled-bg: #f3f4f6;
   --border: #d0d7e2;
+  --active-bg: #f0f0f0;
+  --active-border: #dddddd;
   --text: #0f172a;
   --muted: #475569;
   --accent: #2563eb;
@@ -15,6 +29,21 @@
 
   color: var(--text);
   background: var(--bg);
+}
+
+.rv-showcase.dark-mode {
+  --bg: #0b1220;
+  --panel: #111827;
+  --border: #2f3947;
+  --active-bg: #3b4250;
+  --active-border: #333333;
+  --input-bg: #111827;
+  --disabled-bg: #2f3947;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #60a5fa;
+
+  color: var(--text);
 }
 
 .rv-showcase *,
@@ -51,17 +80,18 @@
 .rv-showcase aside .nav-button {
   display: block;
   width: 100%;
-  textAlign: left;
+  text-align: left;
   padding: 8px 12px;
   border: 1px solid transparent;
+  color: var(--text);
   background: none;
   cursor: pointer;
-  borderRadius: 4;
+  border-radius: 4px;
 }
 
 .rv-showcase aside .nav-button.active {
-  background: #f0f0f0;
-  borderColor: #ddd;
+  background: var(--active-bg);
+  border-color: var(--active-border);
   font-weight: 600
 }
 
@@ -74,9 +104,13 @@
   padding: 8px 10px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: white;
+  background: var(--input-bg);
 
   outline: none;
+}
+
+.rv-showcase .rv-heading-group {
+  padding: 16px;
 }
 
 .rv-showcase input:focus-visible,
@@ -93,19 +127,25 @@
 }
 
 .rv-showcase fieldset {
+  margin-top: 10px;
   border: none;
+  border-top: 1px solid var(--border)
 }
 
 .rv-showcase input:disabled,
 .rv-showcase select:disabled,
 .rv-showcase textarea:disabled {
-  background: #f3f4f6;
+  background: var(--disabled-bg);
   color: var(--muted);
+}
+
+.rv-showcase .rv-column-field .rv-field-label {
+  width: 200px;
 }
 
 .rv-showcase label {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   margin-bottom: 4px;
 }
