@@ -8,6 +8,13 @@ export default function NativeComponentsView() {
   const { layout, fields, groups } = useConfig('demo.interface.layout')
   const mutateConfig = useConfigMutation()
 
+  const pathTitles: Record<string, string> = {
+    demo: 'Demo Control Panel Settings',
+    'demo.interface': 'Interface Settings',
+    'demo.interface.appearance': 'General Appearance',
+    'demo.interface.layout': 'Layout Composition',
+  }
+
   return (
     <div>
       <h1>Native inputs</h1>
@@ -15,6 +22,7 @@ export default function NativeComponentsView() {
 
       <SettingsPanel
         header={title}
+        groupHeaders={(path: string) => pathTitles[path]}
         schema={schema}
         config={config}
         layout={layout as LayoutPreset}

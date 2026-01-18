@@ -132,6 +132,11 @@ body {
   border-top: 1px solid var(--border)
 }
 
+.rv-showcase fieldset legend {
+  font-weight: 500;
+  font-size: 20px;
+}
+
 .rv-showcase input:disabled,
 .rv-showcase select:disabled,
 .rv-showcase textarea:disabled {
