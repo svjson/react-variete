@@ -1,47 +1,51 @@
 import { describe, it, expect } from 'vitest'
 import { materialize } from '@/materialize'
-import { setting } from '@/index'
+import { booleanSetting, enumSetting, stringSetting } from '@/define'
 
 const SCHEMA__SINGLE_TOP_LEVEL__WITH_DEFAULT = {
-  settingOne: setting({
+  settingOne: enumSetting<['on', 'off']>({
     name: 'A setting',
     default: 'on',
+    values: ['on', 'off'],
   }),
 }
 
 const SCHEMA__SINGLE_TOP_LEVEL__NO_DEFAULT = {
-  settingOne: setting({
+  settingOne: enumSetting<['on', 'off']>({
     name: 'A setting',
+    values: ['on', 'off'],
   }),
 }
 
 const SCHEMA__SINGLE_TOP_LEVEL__REQUIRED__NO_DEFAULT = {
-  settingOne: setting({
+  settingOne: enumSetting<['on', 'off']>({
     name: 'A setting',
+    values: ['on', 'off'],
     required: true,
   }),
 }
 
 const SCHEMA__NESTED_TREE__WITH_DEFAULTS = {
   global: {
-    testSetting: setting({
+    testSetting: stringSetting({
       name: 'Test this',
       default: 'yes',
     }),
-    darkMode: setting({
+    darkMode: booleanSetting({
       name: 'Dark Mode',
       default: false,
     }),
   },
   contexts: {
     mediaPlayer: {
-      autoPlay: setting({
+      autoPlay: booleanSetting({
         name: 'Autoplay next video',
         default: true,
       }),
-      subtitles: setting({
+      subtitles: enumSetting<['English', 'Swedish', 'Tagalog', 'Spanish']>({
         name: 'Subtitles',
         default: 'English',
+        values: ['English', 'Swedish', 'Tagalog', 'Spanish'],
       }),
     },
   },
@@ -49,22 +53,23 @@ const SCHEMA__NESTED_TREE__WITH_DEFAULTS = {
 
 const SCHEMA__NESTED_TREE__REQUIRED_SETTINGS__NO_DEFAULTS = {
   global: {
-    testSetting: setting({
+    testSetting: booleanSetting({
       name: 'Test this',
       required: true,
     }),
-    darkMode: setting({
+    darkMode: booleanSetting({
       name: 'Dark Mode',
     }),
   },
   contexts: {
     mediaPlayer: {
-      autoPlay: setting({
+      autoPlay: booleanSetting({
         name: 'Autoplay next video',
         required: true,
       }),
-      subtitles: setting({
+      subtitles: enumSetting<['English', 'Swedish', 'Tagalog', 'Spanish']>({
         name: 'Subtitles',
+        values: ['English', 'Swedish', 'Tagalog', 'Spanish'],
       }),
     },
   },
@@ -72,20 +77,21 @@ const SCHEMA__NESTED_TREE__REQUIRED_SETTINGS__NO_DEFAULTS = {
 
 const SCHEMA__NESTED_TREE__NO_DEFAULTS = {
   global: {
-    testSetting: setting({
+    testSetting: stringSetting({
       name: 'Test this',
     }),
-    darkMode: setting({
+    darkMode: booleanSetting({
       name: 'Dark Mode',
     }),
   },
   contexts: {
     mediaPlayer: {
-      autoPlay: setting({
+      autoPlay: booleanSetting({
         name: 'Autoplay next video',
       }),
-      subtitles: setting({
+      subtitles: enumSetting<['English', 'Swedish', 'Tagalog', 'Spanish']>({
         name: 'Subtitles',
+        values: ['English', 'Swedish', 'Tagalog', 'Spanish'],
       }),
     },
   },
@@ -292,7 +298,7 @@ describe('materialize', () => {
       schema: SCHEMA__NESTED_TREE__REQUIRED_SETTINGS__NO_DEFAULTS,
       input: {
         global: {
-          testSetting: 'here!',
+          testSetting: true,
         },
         contexts: {
           mediaPlayer: {
@@ -302,7 +308,7 @@ describe('materialize', () => {
       },
       expected: {
         global: {
-          testSetting: 'here!',
+          testSetting: true,
           darkMode: undefined,
         },
         contexts: {

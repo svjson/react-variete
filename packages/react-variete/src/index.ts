@@ -1,2 +1,8 @@
 export { createConfig as default } from './context/ConfigurationContext'
-export { setting } from './model/define'
+export {
+  booleanSetting,
+  stringSetting,
+  numberSetting,
+  enumSetting,
+  setting,
+} from './define'

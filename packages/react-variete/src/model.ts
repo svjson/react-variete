@@ -1,5 +1,7 @@
 export const SETTING_DEFINITION: unique symbol = Symbol('SettingDefinition')
 
+export type SettingValueType = 'string' | 'boolean' | 'number' | 'enum'
+
 /**
  * Defines the structure of configuration nodes, which can be either setting
  * definitions or nested configuration trees.
@@ -17,24 +19,34 @@ export type SettingDefinition<T> = {
    * Discriminating branding
    */
   readonly [SETTING_DEFINITION]: true
+
+  /**
+   * The data-type of this setting
+   */
+  type: SettingValueType
+
   /**
    * The name of the configuration setting
    */
   name: string
+
   /**
    * Indicates whether the setting is required
    *
    * @default false
    */
   required?: boolean
+
   /**
    * The default value for the setting, if any
    */
   default?: T
+
   /**
    * A brief description of the setting
    */
   description?: string
+
   /**
    * Additional arbitrary metadata for the setting
    */

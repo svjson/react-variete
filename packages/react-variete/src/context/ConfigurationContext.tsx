@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react'
-import type { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model/model'
+import type { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model'
 import { materialize } from '@/materialize'
 import type { ConfigPath, ConfigPathValue } from '@/resolve'
 import { resolveConfigPath } from '@/resolve'

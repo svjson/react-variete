@@ -1,5 +1,5 @@
 import { readPath } from '@whimbrel/walk'
-import type { ConcreteConfig, ConfigTree } from './model/model'
+import type { ConcreteConfig, ConfigTree } from './model'
 
 /**
  * Generate all possible configuration paths for a given configuration object type.

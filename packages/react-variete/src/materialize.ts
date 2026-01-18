@@ -5,8 +5,8 @@ import type {
   ConfigTree,
   IsInputOptional,
   SettingDefinition,
-} from './model/model'
-import { isSettingNode } from './model/model'
+} from './model'
+import { isSettingNode } from './model'
 import { keysOf } from './utility'
 
 /**
