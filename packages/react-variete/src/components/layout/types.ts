@@ -5,6 +5,7 @@ export type GroupRenderer = (props: GroupRenderProps) => React.ReactNode
 export type FieldRenderer = (props: FieldRenderProps) => React.ReactNode
 
 export interface NodeRenderer {
+  translateGroupHeader: (path: string) => string
   renderField: FieldRenderer
   renderGroup: GroupRenderer
 }
@@ -46,6 +47,7 @@ export type LayoutNode = GroupNode | FieldNode
 
 export interface GroupRenderProps {
   path: string
+  heading?: string
   group: ConfigTree
   children: React.ReactNode[]
 }

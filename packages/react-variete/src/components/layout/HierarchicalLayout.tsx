@@ -49,6 +49,7 @@ export const HierarchicalLayout = (
         if (node.type === 'group') {
           return renderer.renderGroup({
             path: node.path,
+            heading: renderer.translateGroupHeader(node.path),
             group: node.node,
             children: node.children.map(renderNode),
           })

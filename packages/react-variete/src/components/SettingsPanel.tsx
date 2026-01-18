@@ -31,6 +31,7 @@ type Groups = GroupRenderer | GroupsPreset
 
 type SettingsPanelProps<Schema extends ConfigTree> = {
   header?: React.ReactNode | string
+  groupHeaders?: (path: string) => string
   schema: Schema
   config: ConcreteConfig<Schema>
   layout?: Layout
@@ -65,6 +66,7 @@ type Join<P extends string, K extends string> = P extends '' ? K : `${P}.${K}`
 
 export default function SettingsPanel<Schema extends ConfigTree>({
   header,
+  groupHeaders,
   schema,
   config,
   layout = 'flat',
@@ -74,8 +76,11 @@ export default function SettingsPanel<Schema extends ConfigTree>({
 }: SettingsPanelProps<Schema>) {
   type Config = ConcreteConfig<Schema>
 
+  if (!groupHeaders) groupHeaders = (path: string) => path
+
   const layoutBuilder = (typeof layout === 'string' ? LAYOUTS[layout] : layout)(
     {
+      translateGroupHeader: groupHeaders,
       renderField:
         typeof fieldRenderer === 'string'
           ? FIELDS[fieldRenderer]

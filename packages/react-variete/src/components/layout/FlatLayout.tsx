@@ -48,6 +48,7 @@ export const FlatLayout = (renderer: NodeRenderer): SettingsLayoutBuilder => {
           return node.children.length
             ? renderer.renderGroup({
                 path: node.path,
+                heading: renderer.translateGroupHeader(node.path),
                 group: node.node,
                 children: node.children.map(renderNode),
               })
