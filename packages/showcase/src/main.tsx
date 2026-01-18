@@ -6,7 +6,7 @@ import App from './App'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ConfigProvider config={{}}>
+    <ConfigProvider config={{}} store='local-storage'>
       <App />
     </ConfigProvider>
   </StrictMode>
