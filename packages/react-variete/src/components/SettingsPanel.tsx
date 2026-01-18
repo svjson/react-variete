@@ -5,14 +5,53 @@ import type {
   ConfigNode,
   SettingDefinition,
 } from '@/model'
-import { isSettingNode } from '@/model'
+import { isGroupNode, isSettingNode } from '@/model'
 import type { ConfigPath, ConfigPathValue } from '@/resolve'
+import {
+  ColumnFieldRenderer,
+  HierarchicalLayout,
+  HeadingGroupRenderer,
+  FlatLayout,
+  FieldSetGroupRenderer,
+  StackedFieldRenderer,
+} from './layout/index'
+import type {
+  FieldRenderer,
+  GroupRenderer,
+  SettingsLayout,
+} from './layout/index'
+
+export type LayoutPreset = 'hierarchy' | 'flat'
+export type FieldsPreset = 'stacked' | 'column'
+export type GroupsPreset = 'fieldset' | 'heading'
+
+type Layout = SettingsLayout | LayoutPreset
+type Fields = FieldRenderer | FieldsPreset
+type Groups = GroupRenderer | GroupsPreset
 
 type SettingsPanelProps<Schema extends ConfigTree> = {
   header?: React.ReactNode | string
   schema: Schema
   config: ConcreteConfig<Schema>
+  layout?: Layout
+  groupRenderer?: Groups
+  fieldRenderer?: Fields
   onSettingChange: OnSettingChange<Schema>
+}
+
+const LAYOUTS: Record<LayoutPreset, SettingsLayout> = {
+  flat: FlatLayout,
+  hierarchy: HierarchicalLayout,
+}
+
+const FIELDS: Record<FieldsPreset, FieldRenderer> = {
+  stacked: StackedFieldRenderer,
+  column: ColumnFieldRenderer,
+}
+
+const GROUPS: Record<GroupsPreset, GroupRenderer> = {
+  fieldset: FieldSetGroupRenderer,
+  heading: HeadingGroupRenderer,
 }
 
 type OnSettingChange<Schema extends ConfigTree> = <
@@ -28,11 +67,27 @@ export default function SettingsPanel<Schema extends ConfigTree>({
   header,
   schema,
   config,
+  layout = 'flat',
+  fieldRenderer = 'stacked',
+  groupRenderer = 'fieldset',
   onSettingChange,
 }: SettingsPanelProps<Schema>) {
   type Config = ConcreteConfig<Schema>
 
-  const renderSettingValueComponent = <
+  const layoutBuilder = (typeof layout === 'string' ? LAYOUTS[layout] : layout)(
+    {
+      renderField:
+        typeof fieldRenderer === 'string'
+          ? FIELDS[fieldRenderer]
+          : fieldRenderer,
+      renderGroup:
+        typeof groupRenderer === 'string'
+          ? GROUPS[groupRenderer]
+          : groupRenderer,
+    }
+  )
+
+  const renderSetting = <
     P extends ConfigPath<Config>,
     V extends ConfigPathValue<Config, P> = ConfigPathValue<Config, P>,
   >(
@@ -69,7 +124,10 @@ export default function SettingsPanel<Schema extends ConfigTree>({
       case 'enum': {
         const values = (node as any as { values: string[] }).values
         return (
-          <select onChange={(e) => onChange(path, e.target.value as V)}>
+          <select
+            value={value}
+            onChange={(e) => onChange(path, e.target.value as V)}
+          >
             {values.map((v) => (
               <option key={v} value={v}>
                 {v}
@@ -79,27 +137,7 @@ export default function SettingsPanel<Schema extends ConfigTree>({
         )
       }
     }
-    return <div>Invalid type</div>
-  }
-
-  const renderSetting = <
-    P extends ConfigPath<Config>,
-    V extends ConfigPathValue<Config, P> = ConfigPathValue<Config, P>,
-  >(
-    node: SettingDefinition<any>,
-    value: V,
-    path: P,
-    onChange: OnSettingChange<any>
-  ) => {
-    console.log(node)
-    return (
-      <div key={path}>
-        <div>
-          <strong>{node.name}</strong>
-        </div>
-        <div>{renderSettingValueComponent(node, value, path, onChange)}</div>
-      </div>
-    )
+    return <div>Invalid Field</div>
   }
 
   const renderNode = <P extends ConfigPath<Config> | ''>(
@@ -107,36 +145,35 @@ export default function SettingsPanel<Schema extends ConfigTree>({
     valueNode: any,
     path: P,
     onChange: OnSettingChange<Schema>
-  ): React.ReactNode => {
+  ): void => {
     if (isSettingNode(schemaNode)) {
-      return renderSetting(
+      layoutBuilder.addField(
+        path,
         schemaNode,
-        valueNode,
-        path as ConfigPath<Config>,
-        onChange
+        renderSetting(
+          schemaNode,
+          valueNode,
+          path as ConfigPath<Config>,
+          onChange
+        )
       )
     }
 
     const joinPath = (currentPath: P, key: string) =>
       (currentPath ? `${path}.${key}` : key) as Join<P, typeof key>
 
-    if (typeof schemaNode === 'object' && schemaNode !== null) {
-      return (
-        <fieldset key={path || '__root'}>
-          <legend>{path ?? 'root'}</legend>
-          {Object.entries(schemaNode).map(([key, childNode]) =>
-            renderNode(
-              childNode,
-              (valueNode as any)?.[key],
-              joinPath(path, key) as unknown as ConfigPath<Config>,
-              onChange
-            )
-          )}
-        </fieldset>
+    if (isGroupNode(schemaNode)) {
+      layoutBuilder.beginGroup(path, schemaNode)
+      Object.entries(schemaNode).forEach(([key, childNode]) =>
+        renderNode(
+          childNode,
+          (valueNode as any)?.[key],
+          joinPath(path, key) as unknown as ConfigPath<Config>,
+          onChange
+        )
       )
+      layoutBuilder.endGroup(path, schemaNode)
     }
-
-    return null
   }
   const headerNode = header ? (
     typeof header === 'string' ? (
@@ -146,12 +183,12 @@ export default function SettingsPanel<Schema extends ConfigTree>({
     )
   ) : undefined
 
+  renderNode(schema, config, '' as const, onSettingChange)
+
   return (
     <section>
       {headerNode}
-      <div className="rv-settings-panel">
-        {renderNode(schema, config, '' as const, onSettingChange)}
-      </div>
+      <div className="rv-settings-panel">{layoutBuilder.build()}</div>
     </section>
   )
 }

@@ -191,3 +191,7 @@ export const isSettingNode = (
     (node as any)[SETTING_DEFINITION] === true
   )
 }
+
+export const isGroupNode = (node: ConfigNode): node is ConfigTree => {
+  return !isSettingNode(node)
+}

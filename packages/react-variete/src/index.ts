@@ -7,3 +7,9 @@ export {
   setting,
 } from './define'
 export { default as SettingsPanel } from './components/SettingsPanel'
+
+export type {
+  FieldsPreset,
+  GroupsPreset,
+  LayoutPreset,
+} from './components/SettingsPanel'
