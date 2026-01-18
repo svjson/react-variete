@@ -1,0 +1,115 @@
+.rv-showcase {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --border: #d0d7e2;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #2563eb;
+  --radius: 6px;
+
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, Segoe UI,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400
+
+  color: var(--text);
+  background: var(--bg);
+}
+
+.rv-showcase *,
+.rv-showcase *::before,
+.rv-showcase *::after {
+  box-sizing: border-box;
+}
+
+.rv-showcase h1,
+.rv-showcase h2,
+.rv-showcase h3 {
+  font-weight: 600;
+}
+
+.rv-showcase .app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.rv-showcase aside {
+  width: 260px;
+  border-right: 1px solid var(--border);
+  background: var(--panel);
+  padding: 16px;
+}
+
+.rv-showcase main {
+  flex: 1;
+  padding: 32px;
+  overflow: auto;
+}
+
+.rv-showcase aside .nav-button {
+  display: block;
+  width: 100%;
+  textAlign: left;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  borderRadius: 4;
+}
+
+.rv-showcase aside .nav-button.active {
+  background: #f0f0f0;
+  borderColor: #ddd;
+  font-weight: 600
+}
+
+.rv-showcase input,
+.rv-showcase select,
+.rv-showcase textarea {
+  font: inherit;
+  color: inherit;
+
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: white;
+
+  outline: none;
+}
+
+.rv-showcase input:focus-visible,
+.rv-showcase select:focus-visible,
+.rv-showcase textarea:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  outline-offset: 1px;
+}
+
+.rv-showcase .rv-settings-panel {
+  background: var(--panel);
+  border-radius: var(--radius);
+}
+
+.rv-showcase fieldset {
+  border: none;
+}
+
+.rv-showcase input:disabled,
+.rv-showcase select:disabled,
+.rv-showcase textarea:disabled {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+.rv-showcase label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.rv-showcase .field {
+  margin-bottom: 16px;
+}

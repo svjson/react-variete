@@ -1,12 +1,40 @@
-import createConfig, { setting } from 'react-variete'
+import createConfig, {
+  stringSetting,
+  enumSetting,
+  booleanSetting,
+  numberSetting,
+} from 'react-variete'
 
-const schema = {
+export const schema = {
   demo: {
-    title: setting({
-      name: 'Welcome Message',
-      default: 'Welcome to electric smock therapy!',
+    title: stringSetting({
+      name: 'Settings Panel Title',
+      default: 'Settings Panel',
     }),
+    interface: {
+      appearance: {
+        darkMode: booleanSetting({
+          name: 'Dark Mode',
+          default: false,
+        }),
+      },
+      layout: {
+        type: enumSetting<['wide', 'narrow', 'columns']>({
+          name: 'Layout Type',
+          default: 'wide',
+          values: ['wide', 'narrow', 'columns'],
+        }),
+        padding: numberSetting({
+          name: 'Padding',
+          default: 4,
+        }),
+      },
+    },
   },
 }
 
-export const { Provider: ConfigProvider, useConfig } = createConfig(schema)
+export const {
+  Provider: ConfigProvider,
+  useConfig,
+  useConfigMutation,
+} = createConfig(schema)

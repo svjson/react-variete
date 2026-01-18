@@ -1,7 +1,9 @@
-import { useConfig } from './context/config'
+import MainPage from './pages/Main/Main'
 
 export default function App() {
-  const { title } = useConfig('demo')
-
-  return <div>{title}</div>
+  return (
+    <>
+      <MainPage />
+    </>
+  )
 }
