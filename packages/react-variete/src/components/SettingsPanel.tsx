@@ -20,6 +20,7 @@ import type {
   GroupRenderer,
   SettingsLayout,
 } from './layout/index'
+import { Checkbox, Input, Select, NumberInput } from './inputs/index'
 
 export type LayoutPreset = 'hierarchy' | 'flat'
 export type FieldsPreset = 'stacked' | 'column'
@@ -29,9 +30,40 @@ type Layout = SettingsLayout | LayoutPreset
 type Fields = FieldRenderer | FieldsPreset
 type Groups = GroupRenderer | GroupsPreset
 
+export type StringValueComponent = React.ComponentType<{
+  value: string
+  onValueChange: (value: string) => void
+}>
+export type BooleanValueComponent = React.ComponentType<{
+  checked: boolean
+  onCheckedChange: (value: boolean) => void
+}>
+export type NumberValueComponent = React.ComponentType<{
+  value: number
+  onValueChange: (value: number) => void
+  min?: number
+  max?: number
+  step?: number
+}>
+export type EnumValueComponent = React.ComponentType<{
+  value: string
+  options: readonly {
+    value: string
+    label?: string
+    disabled?: boolean
+  }[]
+  onValueChange: (value: string) => void
+}>
+
 type SettingsPanelProps<Schema extends ConfigTree> = {
   header?: React.ReactNode | string
   groupHeaders?: (path: string) => string
+  inputs?: {
+    string?: 'native' | StringValueComponent
+    boolean?: 'native' | BooleanValueComponent
+    number?: 'native' | NumberValueComponent
+    enum?: 'native' | EnumValueComponent
+  }
   schema: Schema
   config: ConcreteConfig<Schema>
   layout?: Layout
@@ -67,6 +99,7 @@ type Join<P extends string, K extends string> = P extends '' ? K : `${P}.${K}`
 export default function SettingsPanel<Schema extends ConfigTree>({
   header,
   groupHeaders,
+  inputs = {},
   schema,
   config,
   layout = 'flat',
@@ -77,6 +110,21 @@ export default function SettingsPanel<Schema extends ConfigTree>({
   type Config = ConcreteConfig<Schema>
 
   if (!groupHeaders) groupHeaders = (path: string) => path
+
+  const inputSet = {
+    boolean: (!inputs.boolean || inputs.boolean === 'native'
+      ? Checkbox
+      : inputs.boolean) as BooleanValueComponent,
+    string: (!inputs.string || inputs.string === 'native'
+      ? Input
+      : inputs.string) as StringValueComponent,
+    number: (!inputs.number || inputs.number === 'native'
+      ? NumberInput
+      : inputs.number) as NumberValueComponent,
+    enum: (!inputs.enum || inputs.enum === 'native'
+      ? Select
+      : inputs.enum) as EnumValueComponent,
+  }
 
   const layoutBuilder = (typeof layout === 'string' ? LAYOUTS[layout] : layout)(
     {
@@ -104,45 +152,38 @@ export default function SettingsPanel<Schema extends ConfigTree>({
     switch (node.type) {
       case 'string':
         return (
-          <input
-            type="text"
+          <inputSet.string
             value={value as string}
-            onChange={(e) => onChange(path, e.target.value as V)}
+            onValueChange={(val) => onChange(path, String(val) as V)}
           />
         )
       case 'boolean':
         return (
-          <input
-            type="checkbox"
+          <inputSet.boolean
             checked={value as boolean}
-            onChange={(e) => onChange(path, e.target.checked as V)}
+            onCheckedChange={(val) => onChange(path, Boolean(val) as V)}
           />
         )
       case 'number':
         return (
-          <input
-            type="number"
+          <inputSet.number
             value={value as number}
-            onChange={(e) => onChange(path, Number(e.target.value) as V)}
+            onValueChange={(val) => onChange(path, Number(val) as V)}
           />
         )
       case 'enum': {
         const values = (node as any as { values: string[] }).values
         return (
-          <select
-            value={value}
-            onChange={(e) => onChange(path, e.target.value as V)}
-          >
-            {values.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
+          <inputSet.enum
+            value={value as string}
+            onValueChange={(val) => onChange(path, String(val) as V)}
+            options={values.map((o) => ({
+              value: o,
+            }))}
+          />
         )
       }
     }
-    return <div>Invalid Field</div>
   }
 
   const renderNode = <P extends ConfigPath<Config> | ''>(
