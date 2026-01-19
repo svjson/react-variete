@@ -16,6 +16,12 @@ export default function Sidebar({
       >
         Native HTML Inputs
       </button>
+      <button
+        className={`nav-button${view === 'radix-ui' ? ' active' : ''}`}
+        onClick={() => onSelectView('radix-ui')}
+      >
+        Radix UI Inputs
+      </button>
     </nav>
   )
 }

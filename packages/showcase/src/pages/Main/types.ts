@@ -1,1 +1,1 @@
-export type ViewId = 'native'
+export type ViewId = 'native' | 'radix-ui'

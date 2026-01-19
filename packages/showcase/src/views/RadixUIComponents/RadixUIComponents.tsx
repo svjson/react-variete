@@ -1,8 +1,14 @@
 import { SettingsPanel } from 'react-variete'
 import type { FieldsPreset, GroupsPreset, LayoutPreset } from 'react-variete'
 import { useConfig, schema, useConfigMutation } from '@/context/config'
+import {
+  Checkbox,
+  Input,
+  NumberInput,
+  Select,
+} from '@/components/inputs/radix-ui'
 
-export default function NativeComponentsView() {
+export default function RadixUIComponentsView() {
   const config = useConfig()
   const { title } = useConfig('demo')
   const { layout, fields, groups } = useConfig('demo.interface.layout')
@@ -17,12 +23,30 @@ export default function NativeComponentsView() {
 
   return (
     <div>
-      <h1>Native HTML Inputs</h1>
-      <p>This view demonstrates react-variete using plain HTML inputs.</p>
+      <h1>Radix UI Components</h1>
+      <p>
+        This view demonstrates react-variete using common shapes of Radix UI
+        React component wrappers..
+      </p>
+      <p>
+        react-variete does not directly integrate with any UI library or
+        contract, but directly supports commonly used shapes ReactComponentProps
+        for each input type.
+      </p>
+      <p>
+        If your application uses components that do not align with this
+        contract, they can still be used by using very thin adapter components.
+      </p>
 
       <SettingsPanel
         header={title}
         groupHeaders={(path: string) => pathTitles[path]}
+        inputs={{
+          boolean: Checkbox,
+          string: Input,
+          number: NumberInput,
+          enum: Select,
+        }}
         schema={schema}
         config={config}
         layout={layout as LayoutPreset}
