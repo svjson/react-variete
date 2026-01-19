@@ -18,17 +18,17 @@ export const schema = {
         }),
       },
       layout: {
-        layout: enumSetting<['flat', 'hierarchy']>({
+        layout: enumSetting({
           name: 'Layout Type',
           default: 'flat',
           values: ['flat', 'hierarchy'],
         }),
-        groups: enumSetting<['fieldset', 'heading']>({
+        groups: enumSetting({
           name: 'Group Renderer',
           default: 'fieldset',
           values: ['fieldset', 'heading'],
         }),
-        fields: enumSetting<['stacked', 'column']>({
+        fields: enumSetting({
           name: 'Field Renderer',
           default: 'stacked',
           values: ['stacked', 'column'],

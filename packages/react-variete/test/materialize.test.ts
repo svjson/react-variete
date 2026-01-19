@@ -3,7 +3,7 @@ import { materialize } from '@/materialize'
 import { booleanSetting, enumSetting, stringSetting } from '@/define'
 
 const SCHEMA__SINGLE_TOP_LEVEL__WITH_DEFAULT = {
-  settingOne: enumSetting<['on', 'off']>({
+  settingOne: enumSetting({
     name: 'A setting',
     default: 'on',
     values: ['on', 'off'],
@@ -11,14 +11,14 @@ const SCHEMA__SINGLE_TOP_LEVEL__WITH_DEFAULT = {
 }
 
 const SCHEMA__SINGLE_TOP_LEVEL__NO_DEFAULT = {
-  settingOne: enumSetting<['on', 'off']>({
+  settingOne: enumSetting({
     name: 'A setting',
     values: ['on', 'off'],
   }),
 }
 
 const SCHEMA__SINGLE_TOP_LEVEL__REQUIRED__NO_DEFAULT = {
-  settingOne: enumSetting<['on', 'off']>({
+  settingOne: enumSetting({
     name: 'A setting',
     values: ['on', 'off'],
     required: true,
@@ -42,7 +42,7 @@ const SCHEMA__NESTED_TREE__WITH_DEFAULTS = {
         name: 'Autoplay next video',
         default: true,
       }),
-      subtitles: enumSetting<['English', 'Swedish', 'Tagalog', 'Spanish']>({
+      subtitles: enumSetting({
         name: 'Subtitles',
         default: 'English',
         values: ['English', 'Swedish', 'Tagalog', 'Spanish'],
@@ -67,7 +67,7 @@ const SCHEMA__NESTED_TREE__REQUIRED_SETTINGS__NO_DEFAULTS = {
         name: 'Autoplay next video',
         required: true,
       }),
-      subtitles: enumSetting<['English', 'Swedish', 'Tagalog', 'Spanish']>({
+      subtitles: enumSetting({
         name: 'Subtitles',
         values: ['English', 'Swedish', 'Tagalog', 'Spanish'],
       }),
@@ -89,7 +89,7 @@ const SCHEMA__NESTED_TREE__NO_DEFAULTS = {
       autoPlay: booleanSetting({
         name: 'Autoplay next video',
       }),
-      subtitles: enumSetting<['English', 'Swedish', 'Tagalog', 'Spanish']>({
+      subtitles: enumSetting({
         name: 'Subtitles',
         values: ['English', 'Swedish', 'Tagalog', 'Spanish'],
       }),

@@ -47,3 +47,12 @@ export const _nestedForeignSettingKey: PartialConfig<typeof TEST_SCHEMA> = {
     notvalid: true,
   },
 }
+
+// FIXME: This should work. PartialConfig doesn't resolve the actual configuration
+// schema as a partial, but rather just sets everything to unknown / anything goes.
+export const _nestedInvalidSettingValue: PartialConfig<typeof TEST_SCHEMA> = {
+  interface: {
+    // @ts-expect-error
+    darkMode: 'Bazinga!',
+  },
+}

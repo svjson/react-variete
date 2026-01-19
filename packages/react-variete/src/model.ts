@@ -10,22 +10,23 @@ export type SettingValueType = 'string' | 'boolean' | 'number' | 'enum'
 export type ConfigNode = SettingDefinition<any> | ConfigTree
 
 /**
- * Mixin-type for Setting types, which is required for inferring value types
- * from setting definition types that do not otherwise expose a template type.
- *
- * @param V - The type of the setting's value
- */
-type ValueBrand<V> = {
-  readonly [SETTING_VALUE]?: V
-}
-
-/**
  * Defines a configuration setting with optional metadata such as whether it is
  * required, its default value, description, and additional metadata.
  *
- * @param T - The type of the setting's value
+ * The setting type (T) and the setting value type (V) are the same for
+ * primitives, but V becomes crucial for enum types where the full type of
+ * setting (the string tuple/array of valid values) must be bound to T, while
+ * V must be assignable from any of T's values.
+ *
+ * @param T - The full type of the setting
+ * @param V - The type of the setting value
  */
-export type SettingDefinitionBase = {
+export type SettingDefinition<T = any, V = T> = (
+  | { type: 'string' }
+  | { type: 'number' }
+  | { type: 'boolean' }
+  | { type: 'enum'; readonly values: T }
+) & {
   /**
    * Discriminating branding
    */
@@ -35,6 +36,11 @@ export type SettingDefinitionBase = {
    * The name of the configuration setting
    */
   name: string
+
+  /**
+   * The default value for the setting, if any
+   */
+  default?: V
 
   /**
    * Indicates whether the setting is required
@@ -53,66 +59,6 @@ export type SettingDefinitionBase = {
    */
   meta?: Record<string, unknown>
 }
-
-/**
- * Defines the base properties of a primitive configuration setting.
- *
- * Actual instances may define additional properties unique to their
- * kind, so this type should never be used to directly define or
- * inspect settings.
- *
- * @param T - The type of the setting's value
- */
-type PrimitiveSetting<
-  T,
-  TP extends SettingValueType,
-> = SettingDefinitionBase & {
-  /**
-   * Type discriminator
-   */
-  type: TP
-  /**
-   * The default value for the setting, if any
-   */
-  default?: T
-}
-
-/**
- * Fully formed type for string setting values
- */
-export type StringSetting = PrimitiveSetting<string, 'string'>
-
-/**
- * Fully formed type for number setting values
- */
-export type NumberSetting = PrimitiveSetting<number, 'number'>
-
-/**
- * Fully formed type for boolean setting values
- */
-export type BooleanSetting = PrimitiveSetting<boolean, 'boolean'>
-
-/**
- * Fully formed type for enum setting values
- *
- * @param E - The tuple of valid enum string values
- */
-export type EnumSetting<E extends readonly string[]> = SettingDefinitionBase &
-  ValueBrand<E[number]> & {
-    type: 'enum'
-    default?: E[number]
-    values: E
-  }
-
-/**
- * Union type alias that binds together all stock settig types, and defines a
- * configuration setting which may be of various primitive types.
- */
-export type SettingDefinition<V = unknown> =
-  | (StringSetting & ValueBrand<V>)
-  | (NumberSetting & ValueBrand<V>)
-  | (BooleanSetting & ValueBrand<V>)
-  | (EnumSetting<readonly string[]> & ValueBrand<V>)
 
 /**
  * Defines a tree structure for configuration, where each key maps to either a
@@ -137,7 +83,7 @@ export type ConfigTree = {
  *
  * @returns True if the setting is required and has no default value, false otherwise
  */
-type IsRequiredSetting<S> = S extends { required: true }
+export type IsRequiredSetting<S> = S extends { required: true }
   ? S extends { default: any }
     ? false
     : true
@@ -167,13 +113,12 @@ type HasRequiredWithoutDefault<T> =
   T extends SettingDefinition<any>
     ? IsRequiredSetting<T>
     : T extends ConfigTree
-      ? {
+      ? true extends {
           [K in keyof T]: HasRequiredWithoutDefault<T[K]>
-        }[keyof T] extends true
+        }[keyof T]
         ? true
         : false
       : false
-
 /**
  * Type-utility that rounds up all required keys of a ConfigTree branch,
  * checking with full depth if any descendant leaf contains required settings
@@ -199,7 +144,7 @@ type RequiredKeys<T extends ConfigTree> = {
  */
 type OptionalKeys<T extends ConfigTree> = Exclude<keyof T, RequiredKeys<T>>
 
-type LiteralValue<V> =
+export type LiteralValue<V> =
   V extends SettingDefinition<infer S>
     ? S
     : V extends ConfigTree
@@ -216,16 +161,13 @@ type LiteralValue<V> =
  *
  * @param T - The configuration schema tree
  */
-export type ConfigLiteral<T> =
-  T extends SettingDefinition<any>
-    ? never // settings don't appear directly at root
-    : T extends ConfigTree
-      ? {
-          [K in RequiredKeys<T>]: LiteralValue<T[K]>
-        } & {
-          [K in OptionalKeys<T>]?: LiteralValue<T[K]>
-        }
-      : never
+export type ConfigLiteral<T> = T extends SettingDefinition
+  ? never
+  : T extends ConfigTree
+    ? { [K in RequiredKeys<T>]: LiteralValue<T[K]> } & {
+        [K in OptionalKeys<T>]?: LiteralValue<T[K]>
+      }
+    : never
 
 /**
  * Defines the concrete configuration type derived from a configuration schema
@@ -283,8 +225,8 @@ export const isGroupNode = (node: ConfigNode): node is ConfigTree => {
  *
  * @returns True if the value is valid for the setting, false otherwise
  */
-export const isValidSettingValue = <V>(
-  setting: SettingDefinition<V>,
+export const isValidSettingValue = <S extends SettingDefinition>(
+  setting: S,
   value: unknown
 ): boolean => {
   switch (setting.type) {

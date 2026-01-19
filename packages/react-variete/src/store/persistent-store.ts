@@ -1,5 +1,5 @@
-import type { ConcreteConfig, ConfigTree, PartialConfig } from '@/model'
-import type { ConfigPath, ConfigPathValue } from '@/resolve'
+import type { ConfigTree, PartialConfig } from '@/model'
+import type { ConfigPath, SchemaPathValueType } from '@/resolve'
 
 /**
  * Interface for a persistent store that can load and save configuration values.
@@ -8,10 +8,7 @@ import type { ConfigPath, ConfigPathValue } from '@/resolve'
  * @template ConfigValues - The configuration values type.
  * @template ResolvedSchema - The resolved configuration schema type.
  */
-export interface PersistentStore<
-  Schema extends ConfigTree,
-  ResolvedSchema extends ConcreteConfig<Schema> = ConcreteConfig<Schema>,
-> {
+export interface PersistentStore<Schema extends ConfigTree> {
   /**
    * Load the persisted configuration.
    */
@@ -23,9 +20,9 @@ export interface PersistentStore<
    * @param path - The configuration path to save the value at.
    * @param value - The configuration value to save.
    */
-  saveValue<P extends ConfigPath<ResolvedSchema>>(
+  saveValue<P extends ConfigPath<Schema>>(
     path: P,
-    value: ConfigPathValue<ResolvedSchema, P>
+    value: SchemaPathValueType<Schema, P>
   ): void
 
   /**

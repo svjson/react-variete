@@ -1,27 +1,22 @@
 import { SETTING_DEFINITION } from './model'
-import type {
-  BooleanSetting,
-  EnumSetting,
-  NumberSetting,
-  SettingDefinitionBase,
-  StringSetting,
-} from './model'
+import type { SettingDefinition } from './model'
 
-type SettingDetails<T extends SettingDefinitionBase> = Omit<
-  T,
-  typeof SETTING_DEFINITION
+type Input<T, V = T> = Omit<
+  SettingDefinition<T, V>,
+  typeof SETTING_DEFINITION | 'type'
 >
 
 /**
- * Convenience factory-function that defines a string-setting.
+ * Defines a string-setting schema, preserving the schema details in
+ * the resulting type.
  *
  * @param def - The setting details
  *
  * @return A fully formed string-setting definition
  */
-export const stringSetting = (
-  def: Omit<SettingDetails<StringSetting>, 'type'>
-): StringSetting => {
+export const stringSetting = <Setting extends Input<string>>(
+  def: Setting
+): SettingDefinition<string> & Setting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'string',
@@ -30,15 +25,16 @@ export const stringSetting = (
 }
 
 /**
- * Convenience factory-function that defines a boolean-setting.
+ * Defines a boolean-setting schema, preserving the schema details in
+ * the resulting type.
  *
  * @param def - The setting details
  *
  * @return A fully formed boolean-setting definition
  */
-export const booleanSetting = (
-  def: Omit<SettingDetails<BooleanSetting>, 'type'>
-): BooleanSetting => {
+export const booleanSetting = <Setting extends Input<boolean>>(
+  def: Setting
+): SettingDefinition<boolean> & Setting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'boolean',
@@ -47,15 +43,16 @@ export const booleanSetting = (
 }
 
 /**
- * Convenience factory-function that defines a number-setting.
+ * Defines a boolean-setting schema, preserving the schema details in
+ * the resulting type.
  *
  * @param def - The setting details
  *
  * @return A fully formed number-setting definition
  */
-export const numberSetting = (
-  def: Omit<SettingDetails<NumberSetting>, 'type'>
-): NumberSetting => {
+export const numberSetting = <Setting extends Input<number>>(
+  def: Setting
+): SettingDefinition<number> & Setting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'number',
@@ -64,17 +61,21 @@ export const numberSetting = (
 }
 
 /**
- * Convenience factory-function that defines a enum-setting.
+ * Defines an enum-setting schema, preserving the schema details in
+ * the resulting type.
  *
  * @param def - The setting details
  *
  * @return A fully formed enum-setting definition
  */
-export const enumSetting = <T extends readonly string[]>(
-  def: Omit<SettingDetails<EnumSetting<T>>, 'type'> & {
+export const enumSetting = <
+  const T extends readonly string[],
+  Setting extends Input<T, T[number]> & { values: T } & {
     values: T
-  }
-): EnumSetting<T> => {
+  },
+>(
+  def: Setting
+): SettingDefinition<T, T[number]> & Setting => {
   return {
     [SETTING_DEFINITION]: true,
     type: 'enum',

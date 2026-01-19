@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState } from 'react'
 import type { ConcreteConfig, ConfigLiteral, ConfigTree } from '@/model'
 import { materialize } from '@/materialize'
-import type { ConfigPath, ConfigPathValue } from '@/resolve'
+import type {
+  ConfigPath,
+  ConfigPathValue,
+  SchemaPathValueType,
+} from '@/resolve'
 import { resolveConfigPath } from '@/resolve'
 import { writePath } from '@whimbrel/walk'
 import type { PersistentStore } from '@/store/persistent-store'
@@ -26,9 +30,9 @@ export function createConfig<
     ConfigLiteral<ConfigSchema>,
 >(schema: ConfigSchema) {
   type ResolvedConfig = ConcreteConfig<ConfigSchema>
-  type MutateSetting = <P extends ConfigPath<ResolvedConfig>>(
+  type MutateSetting = <P extends ConfigPath<ConfigSchema>>(
     path: P,
-    value: ConfigPathValue<ResolvedConfig, P>
+    value: SchemaPathValueType<ConfigSchema, P>
   ) => void
 
   type ContextState = {
@@ -105,7 +109,7 @@ export function createConfig<
   /**
    * Implementation of the useConfig hook overloads.
    */
-  function useConfig(path?: ConfigPath<ResolvedConfig>) {
+  function useConfig(path?: ConfigPath<ConfigSchema>) {
     const ctx = useContext(ConfigContext)
     if (ctx === undefined) {
       throw new Error('useConfig must be used within a ConfigProvider')
@@ -117,7 +121,7 @@ export function createConfig<
       return config
     }
 
-    return resolveConfigPath(config, path)
+    return resolveConfigPath(schema, config, path)
   }
 
   /**

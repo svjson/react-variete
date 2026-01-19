@@ -6,7 +6,11 @@ import type {
   SettingDefinition,
 } from '@/model'
 import { isGroupNode, isSettingNode } from '@/model'
-import type { ConfigPath, ConfigPathValue } from '@/resolve'
+import type {
+  ConfigPath,
+  ConfigPathValue,
+  SchemaPathValueType,
+} from '@/resolve'
 import {
   ColumnFieldRenderer,
   HierarchicalLayout,
@@ -88,10 +92,10 @@ const GROUPS: Record<GroupsPreset, GroupRenderer> = {
 }
 
 type OnSettingChange<Schema extends ConfigTree> = <
-  P extends ConfigPath<ConcreteConfig<Schema>>,
+  P extends ConfigPath<Schema>,
 >(
   path: P,
-  value: ConfigPathValue<ConcreteConfig<Schema>, P>
+  value: SchemaPathValueType<Schema, P>
 ) => void
 
 type Join<P extends string, K extends string> = P extends '' ? K : `${P}.${K}`
@@ -141,7 +145,7 @@ export default function SettingsPanel<Schema extends ConfigTree>({
   )
 
   const renderSetting = <
-    P extends ConfigPath<Config>,
+    P extends ConfigPath<Schema>,
     V extends ConfigPathValue<Config, P> = ConfigPathValue<Config, P>,
   >(
     node: SettingDefinition<any>,
@@ -186,7 +190,7 @@ export default function SettingsPanel<Schema extends ConfigTree>({
     }
   }
 
-  const renderNode = <P extends ConfigPath<Config> | ''>(
+  const renderNode = <P extends ConfigPath<Schema> | ''>(
     schemaNode: ConfigNode,
     valueNode: any,
     path: P,
@@ -199,7 +203,7 @@ export default function SettingsPanel<Schema extends ConfigTree>({
         renderSetting(
           schemaNode,
           valueNode,
-          path as ConfigPath<Config>,
+          path as ConfigPath<Schema>,
           onChange
         )
       )
@@ -214,7 +218,7 @@ export default function SettingsPanel<Schema extends ConfigTree>({
         renderNode(
           childNode,
           (valueNode as any)?.[key],
-          joinPath(path, key) as unknown as ConfigPath<Config>,
+          joinPath(path, key) as unknown as ConfigPath<Schema>,
           onChange
         )
       )
