@@ -15,7 +15,6 @@ export function Checkbox({
       onCheckedChange={(v) => {
         if (v !== 'indeterminate') onCheckedChange(v)
       }}
-      style={{ height: 20, width: 20, overflow: 'hidden', paddingLeft: 3 }}
       {...props}
     >
       <CheckboxPrimitive.Indicator>✔</CheckboxPrimitive.Indicator>
